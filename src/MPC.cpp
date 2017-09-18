@@ -6,8 +6,8 @@
 using CppAD::AD;
 
 // Set the timestep length and duration
-size_t N = 20;
-double dt = 0.05;
+size_t N = 10;
+double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -57,15 +57,15 @@ public:
         
         // cost based on state
         for (int t=0; t < N; t++) {
-            fg[0] += 10 * CppAD::pow(vars[cte_start + t], 2);
-            fg[0] += 500 * CppAD::pow(vars[epsi_start + t], 2);
-            fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
+            fg[0] += 12 * CppAD::pow(vars[cte_start + t], 2);
+            fg[0] += 3600 * CppAD::pow(vars[epsi_start + t], 2);
+            fg[0] += 0.3 * CppAD::pow(vars[v_start + t] - ref_v, 2);
         }
         
         // Minimize the use of actuators.
         for (int t = 0; t < N - 1; t++) {
-            fg[0] += 5 * CppAD::pow(vars[delta_start + t], 2);
-            fg[0] += 5 * CppAD::pow(vars[a_start + t], 2);
+            fg[0] += 10000 * CppAD::pow(vars[delta_start + t], 2);
+            fg[0] += 10 * CppAD::pow(vars[a_start + t], 2);
         }
         
         // Minimize the value gap between sequential actuations.
