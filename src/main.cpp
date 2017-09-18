@@ -109,6 +109,8 @@ int main() {
                     double py = j[1]["y"];
                     double psi = j[1]["psi"];
                     double v = j[1]["speed"];
+                    double steering_angle = j[1]["steering_angle"];
+                    double throttle = j[1]["throttle"];
                     
                     // convert from flobal/map coordinates to vehicles coordinates
                     Eigen::MatrixXd pathpoints = convertToCoordinates(px, py, psi, ptsx, ptsy);
@@ -123,9 +125,20 @@ int main() {
                     // calculate the orientation error
                     double epsi = -atan(coeffs[1]);
                     
+                    double dt = mpc.getTimeInterval();
+                    double Lf = 2.67;
+                    
+                    // use kinematic model to predict the state in time interval dt.
+                    double px_actual = 0.0 + v * dt;
+                    double py_actual = 0.0;
+                    double psi_actual = 0.0 - v * (steering_angle) * dt / Lf;
+                    double v_actual = v + throttle * dt;
+                    double cte_actual = cte + v * sin(epsi) * dt;
+                    double epsi_actual = epsi + psi_actual;
+                    
                     // state in vehicle coordinates
                     Eigen::VectorXd state(6);
-                    state << 0, 0, 0, v, cte, epsi;
+                    state << px_actual, py_actual, psi_actual, v_actual, cte_actual, epsi_actual;
                     
                     // Calculate steering angle and throttle using MPC. Both are in between [-1, 1].
                     auto solution = mpc.Solve(state, coeffs);
@@ -137,7 +150,6 @@ int main() {
                     // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
                     // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
                     steer_value = steer_value/deg2rad(25);
-                    throttle_value = fmod(throttle_value, 1.0);
                     
                     msgJson["steering_angle"] = -steer_value;
                     msgJson["throttle"] = throttle_value;
