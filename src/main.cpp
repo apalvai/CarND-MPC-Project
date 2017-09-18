@@ -109,12 +109,12 @@ int main() {
                     double steering_angle = j[1]["steering_angle"];
                     double throttle = j[1]["throttle"];
                     
-                    cout << "px: " << px << endl;
-                    cout << "py: " << py << endl;
-                    cout << "psi: " << psi << endl;
-                    cout << "v: " << v << endl;
-                    cout << "steering_angle: " << steering_angle << endl;
-                    cout << "throttle: " << throttle << endl;
+//                    cout << "px: " << px << endl;
+//                    cout << "py: " << py << endl;
+//                    cout << "psi: " << psi << endl;
+//                    cout << "v: " << v << endl;
+//                    cout << "steering_angle: " << steering_angle << endl;
+//                    cout << "throttle: " << throttle << endl;
                     
                     /*
                      * Calculate steering angle and throttle using MPC.
@@ -148,7 +148,7 @@ int main() {
                     Eigen::VectorXd state(6);
                     state << px_actual, py_actual, psi_actual, v_actual, cte_actual, epsi_actual;
                     for (int i=0; i<state.size(); i++) {
-                        cout << "state[" << i << "]: " << state[i] << endl;
+                        // cout << "state[" << i << "]: " << state[i] << endl;
                     }
                     
                     auto solution = mpc.Solve(state, coeffs);
