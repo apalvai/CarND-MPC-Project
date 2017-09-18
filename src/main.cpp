@@ -72,9 +72,12 @@ Eigen::MatrixXd convertToCoordinates(double x, double y, double psi, const vecto
     
     auto pathpoints = Eigen::MatrixXd(2,len);
     
-    for (auto i=0; i<len ; ++i){
-        pathpoints(0,i) =   cos(psi) * (ptsx[i] - x) + sin(psi) * (ptsy[i] - y);
-        pathpoints(1,i) =  -sin(psi) * (ptsx[i] - x) + cos(psi) * (ptsy[i] - y);
+    for (auto i=0; i<len ; ++i) {
+        double dx = ptsx[i] - x;
+        double dy = ptsy[i] - y;
+        
+        pathpoints(0,i) =   cos(psi) * dx + sin(psi) * dy;
+        pathpoints(1,i) =  -sin(psi) * dx + cos(psi) * dy;
     }
     
     return pathpoints;
@@ -106,21 +109,8 @@ int main() {
                     double py = j[1]["y"];
                     double psi = j[1]["psi"];
                     double v = j[1]["speed"];
-                    double steering_angle = j[1]["steering_angle"];
-                    double throttle = j[1]["throttle"];
                     
-//                    cout << "px: " << px << endl;
-//                    cout << "py: " << py << endl;
-//                    cout << "psi: " << psi << endl;
-//                    cout << "v: " << v << endl;
-//                    cout << "steering_angle: " << steering_angle << endl;
-//                    cout << "throttle: " << throttle << endl;
-                    
-                    /*
-                     * Calculate steering angle and throttle using MPC.
-                     * Both are in between [-1, 1].
-                     */
-                    
+                    // convert from flobal/map coordinates to vehicles coordinates
                     Eigen::MatrixXd pathpoints = convertToCoordinates(px, py, psi, ptsx, ptsy);
                     Eigen::VectorXd xvals = pathpoints.row(0);
                     Eigen::VectorXd yvals = pathpoints.row(1);
@@ -128,29 +118,16 @@ int main() {
                     auto coeffs = polyfit(xvals, yvals, 3);
                     
                     // calculate the cross track error
-                    double cte = coeffs[0];
+                    double cte = polyeval(coeffs, 0);
                     
                     // calculate the orientation error
                     double epsi = -atan(coeffs[1]);
                     
-                    double dt = mpc.getTimeInterval();
-                    double Lf = 2.67;
-                    
-                    // use kinematic model to predict the state in time interval dt.
-                    double px_actual = v * dt;
-                    double py_actual = 0;
-                    double psi_actual = - v * steering_angle * dt / Lf;
-                    double v_actual = v + throttle * dt;
-                    double cte_actual = cte + v * sin(epsi) * dt;
-                    double epsi_actual = epsi + psi_actual;
-                    
                     // state in vehicle coordinates
                     Eigen::VectorXd state(6);
-                    state << px_actual, py_actual, psi_actual, v_actual, cte_actual, epsi_actual;
-                    for (int i=0; i<state.size(); i++) {
-                        // cout << "state[" << i << "]: " << state[i] << endl;
-                    }
+                    state << 0, 0, 0, v, cte, epsi;
                     
+                    // Calculate steering angle and throttle using MPC. Both are in between [-1, 1].
                     auto solution = mpc.Solve(state, coeffs);
                     
                     double steer_value = solution[6];
@@ -166,8 +143,8 @@ int main() {
                     msgJson["throttle"] = throttle_value;
                     
                     //Display the MPC predicted trajectory
-                    vector<double> mpc_x_vals;
-                    vector<double> mpc_y_vals;
+                    vector<double> mpc_x_vals = mpc.mpc_x;
+                    vector<double> mpc_y_vals = mpc.mpc_y;
                     
                     mpc_x_vals.push_back(solution[0]);
                     mpc_y_vals.push_back(solution[1]);
@@ -181,6 +158,11 @@ int main() {
                     //Display the waypoints/reference line
                     vector<double> next_x_vals;
                     vector<double> next_y_vals;
+                    
+                    for(int i = 0; i<ptsx.size();i++){
+                        next_x_vals.push_back(xvals[i]);
+                        next_y_vals.push_back(yvals[i]);
+                    }
                     
                     //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
                     // the points in the simulator are connected by a Yellow line
