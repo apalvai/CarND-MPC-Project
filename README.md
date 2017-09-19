@@ -7,16 +7,16 @@ Self-Driving Car Engineer Nanodegree Program
 
 This project deals with implementing a model predictive control to drive a vehicle around a track. For testing purposes control, Udacity provided simulator has been used. Initial project setup includes a mechanism to communicate between the control and the simulator via websocket. Model predictive control would make use of the telemtery data from the simulator and estimate the steering angle and throttle which gets communicated back to simulator, to drive the vehcile around track.
 
-# Model
+### Model
 MPC uses kinematic model uses a state vector to predict the trajectory. State consists of vehicle coordinates px, py, orientation (psi), velocity (v), cte and epsi.
 
-# Number of steps and step size
+### Number of steps and step size
 This solution used 10 steps(N) with a step size of 0.1 secs(dt), to predict the path for next 1 second. The choice of 0.1 secs aligns well with the atuation delay that needs to be fatored in. This combination seems to be a decent trade off between the processing power needed and the time steps.
 
-# Polynomial Fitting and MPC Preprocessing
+### Polynomial Fitting and MPC Preprocessing
 The waypoints received from simulator are used to fit a 3rd order polynomial. Based off of the new polynomial, the cte and error in orientation are computed that are part of the state vector. Other state related related information received from the simulator, need to be converted from global/map coordinates to vehciles coordinates, to determine the trajectory and control actuations. Velocity received from simulator has been converted from mph to m/s before applying the kinematic model to predict the state. 
 
-# Model Predictive Control with Latency
+### Model Predictive Control with Latency
 The optimization problem involves minimizing a cost function that is a function of weighted sum of errors, actuations and the change in actuations. The weights have been tuned to make sure that vehcile can safely drive around the track in simualtor. This solution takes into the delay (100ms) in actual application of actuations and apply them accordingly.
 * Weight for CTE: 12
 * Weight for EPSI: 4050
