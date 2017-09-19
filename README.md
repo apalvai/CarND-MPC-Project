@@ -11,7 +11,7 @@ This project deals with implementing a model predictive control to drive a vehic
 MPC uses kinematic model uses a state vector to predict the trajectory. State consists of vehicle coordinates px, py, orientation (psi), velocity (v), cte and epsi.
 
 ### Number of steps and step size
-This solution used 10 steps(N) with a step size of 0.1 secs(dt), to predict the path for next 1 second. The choice of 0.1 secs aligns well with the atuation delay that needs to be fatored in. This combination seems to be a decent trade off between the processing power needed and the time steps.
+This solution used 10 steps(N) with a step size of 0.1 secs(dt), to predict the path for next 1 second. The choice of 0.1 secs aligns well with the actuation delay that needs to be factored in. This combination seems to be a decent trade off between the processing power needed and discretization error.
 
 ### Polynomial Fitting and MPC Preprocessing
 The waypoints received from simulator are used to fit a 3rd order polynomial. Based off of the new polynomial, the cte and error in orientation are computed that are part of the state vector. Other state related related information received from the simulator, need to be converted from global/map coordinates to vehciles coordinates, to determine the trajectory and control actuations. Velocity received from simulator has been converted from mph to m/s before applying the kinematic model to predict the state. 
