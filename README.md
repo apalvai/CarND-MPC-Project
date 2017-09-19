@@ -17,7 +17,7 @@ This solution used 10 steps(N) with a step size of 0.1 secs(dt), to predict the 
 The waypoints received from simulator are used to fit a 3rd order polynomial. Based off of the new polynomial, the cte and error in orientation are computed that are part of the state vector. Other state related related information received from the simulator, need to be converted from global/map coordinates to vehciles coordinates, to determine the trajectory and control actuations. Velocity received from simulator has been converted from mph to m/s before applying the kinematic model to predict the state. 
 
 ### Model Predictive Control with Latency
-The optimization problem involves minimizing a cost function that is a function of weighted sum of errors, actuations and the change in actuations. The weights have been tuned to make sure that vehcile can safely drive around the track in simualtor. This solution takes into the delay (100ms) in actual application of actuations and apply them accordingly.
+The optimization problem involves minimizing a cost function that is a function of weighted sum of errors, actuations and the change in actuations. The weights have been tuned to make sure that vehcile can safely drive around the track in simualtor. This solution takes into account for the real world delay (100ms, the time for the actuation to actually take effect) in applying actuations by selecting the previously computed values.
 * Weight for CTE: 12
 * Weight for EPSI: 4050
 * Weight for reference velocity: 1
